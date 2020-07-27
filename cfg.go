@@ -27,7 +27,8 @@ type LogCfg struct {
 func ReadLogCfg() *LogCfg {
 	yamlFile, err := ioutil.ReadFile("log.yaml")
 	if err != nil {
-		log.Printf("log.yaml.Get err   #%v ", err)
+		log.Printf("log.yaml.Get warn   #%v ", err)
+		yamlFile = []byte("root: 'logs/'\nautoload: true\nloggerCfgs:\n  default:\n    level: 'info'\n    file: 'def.log'\n    compress: true\n    maxFileSize: 100MB\n    maxBackupIndex: 7\n    console: true\n")
 	}
 	cfg := &LogCfg{}
 	err = yaml.Unmarshal(yamlFile, cfg)
