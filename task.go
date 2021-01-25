@@ -4,7 +4,7 @@
 package glog
 
 import (
-	"compress/gzip"
+	"archive/zip"
 	"io"
 	"io/ioutil"
 	"log"
@@ -115,24 +115,20 @@ func CompressFile(Dst string, Src string) error {
 		return err
 	}
 
-	zw := gzip.NewWriter(newfile)
+	// 打开：zip文件
+	archive := zip.NewWriter(newfile)
+	defer archive.Close()
 
-	filestat, err := file.Stat()
-	if err != nil {
-		return nil
-	}
+	info, _ := file.Stat()
+	header, _ := zip.FileInfoHeader(info)
+	// 设置：zip的文件压缩算法
+	header.Method = zip.Deflate
 
-	zw.Name = filestat.Name()
-	zw.ModTime = filestat.ModTime()
-	_, err = io.Copy(zw, file)
-	if err != nil {
-		return nil
-	}
+	// 创建：压缩包头部信息
+	writer, _ := archive.CreateHeader(header)
 
-	zw.Flush()
-	if err := zw.Close(); err != nil {
-		return nil
-	}
+	io.Copy(writer, file)
+
 	return nil
 }
 
